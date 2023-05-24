@@ -30,11 +30,23 @@ const Post = mongoose.model("Post", blogSchema);
 
 let posts = [];
 
-app.get("/", function(req, res){
-  res.render("home", {
-    startingContent: homeStartingContent,
-    posts: posts
+app.get("/", async function(req, res){
+  const mongoFind = await Post.findOne();
+  console.log(Object.keys(Post).length);
+  if(Object.keys(Post).length > 0) {
+    const mongoResult = await Post.find({});
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: mongoResult
     });
+  } else{
+    //send to list.ejs
+    //res.render("list", {listTitle: "Today", newListItems: mongoResult});
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts
+      });
+  }
 });
 
 app.get("/about", function(req, res){
@@ -55,9 +67,8 @@ app.post("/compose", async function(req, res){
     content: req.body.postBody
   };
 
-  //posts.push(post);
   const mongoResult = await Post.create({title: post.title, content: post.content});
-  res.redirect("/compose");
+  res.redirect("/");
 });
 
 app.get("/posts/:postName", function(req, res){

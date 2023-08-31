@@ -31,8 +31,6 @@ const Post = mongoose.model("Post", blogSchema);
 let posts = [];
 
 app.get("/", async function(req, res){
-  const mongoFind = await Post.findOne();
-  console.log(Object.keys(Post).length);
   if(Object.keys(Post).length > 0) {
     const mongoResult = await Post.find({});
     res.render("home", {
@@ -71,20 +69,13 @@ app.post("/compose", async function(req, res){
   res.redirect("/");
 });
 
-app.get("/posts/:postName", function(req, res){
-  const requestedTitle = _.lowerCase(req.params.postName);
-
-  posts.forEach(function(post){
-    const storedTitle = _.lowerCase(post.title);
-
-    if (storedTitle === requestedTitle) {
-      res.render("post", {
-        title: post.title,
-        content: post.content
-      });
-    }
+app.get("/posts/:postId", async function(req, res){
+  const requestedTitle = req.params.postId;
+  const mongoResult = await Post.findById(requestedTitle).exec();
+  res.render("post", {
+    title: mongoResult.title,
+    content: mongoResult.content
   });
-
 });
 
 app.listen(3000, function() {
